@@ -1,4 +1,4 @@
-package com.devtiro.database.dao.impl;
+package com.devtiro.database.repositories;
 
 import com.devtiro.database.TestDataUtil;
 import com.devtiro.database.domain.Author;
@@ -17,15 +17,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class AuthorDaoImplIntegrationTest {
-    private final AuthorDaoImpl underTest;
+public class AuthorRepositoryIntegrationTest {
+    private final AuthorRepository underTest;
 
     @Test
     public void testThatAuthorCanBeCreatedAndRecalled() {
         Author author = TestDataUtil.createTestAuthorA();
-        underTest.create(author);
-        Optional<Author> result = underTest.findOne(author.getId());
-
+        underTest.save(author);
+        Optional<Author> result = underTest.findById(author.getId());
         assertThat(result)
                 .isPresent()
                 .get()
@@ -38,11 +37,11 @@ public class AuthorDaoImplIntegrationTest {
         Author authorB = TestDataUtil.createTestAuthorB();
         Author authorC = TestDataUtil.createTestAuthorC();
 
-        underTest.create(authorA);
-        underTest.create(authorB);
-        underTest.create(authorC);
+        underTest.save(authorA);
+        underTest.save(authorB);
+        underTest.save(authorC);
 
-        List<Author> result = underTest.find();
+        Iterable<Author> result = underTest.findAll();
 
         assertThat(result)
                 .hasSize(3)
@@ -52,20 +51,44 @@ public class AuthorDaoImplIntegrationTest {
     @Test
     public void testThatAuthorCanBeUpdatedAndRecalled() {
         Author authorA = TestDataUtil.createTestAuthorA();
-        underTest.create(authorA);
+        underTest.save(authorA);
         authorA.setName("UPDATED");
-        underTest.update(authorA.getId(), authorA);
+        underTest.save(authorA);
 
-        Optional<Author> result = underTest.findOne(authorA.getId());
+        Optional<Author> result = underTest.findById(authorA.getId());
         assertThat(result).isPresent().get().isEqualTo(authorA);
     }
 
     @Test
     public void testThatAuthorCanBeDeletedAndRecalled() {
         Author authorA = TestDataUtil.createTestAuthorA();
-        underTest.create(authorA);
-        underTest.delete(authorA.getId());
-        Optional<Author> result = underTest.findOne(authorA.getId());
+        underTest.save(authorA);
+        underTest.delete(authorA);
+        Optional<Author> result = underTest.findById(authorA.getId());
         assertThat(result).isNotPresent();
+    }
+
+    @Test
+    public void testThatGetAuthorsWithAgeLessThan(){
+        Author authorA = TestDataUtil.createTestAuthorA();
+        Author authorB = TestDataUtil.createTestAuthorB();
+        Author authorC = TestDataUtil.createTestAuthorC();
+
+        underTest.saveAll(List.of(authorA, authorB, authorC));
+
+        Iterable<Author> results = underTest.ageLessThan(50);
+        assertThat(results).containsExactly(authorB, authorC);
+    }
+
+    @Test
+    public void testThatGetAuthorsWithAgeGreaterThan(){
+        Author authorA = TestDataUtil.createTestAuthorA();
+        Author authorB = TestDataUtil.createTestAuthorB();
+        Author authorC = TestDataUtil.createTestAuthorC();
+
+        underTest.saveAll(List.of(authorA, authorB, authorC));
+
+        Iterable<Author> results = underTest.findAuthorsWithAgeGreaterThan(50);
+        assertThat(results).containsExactly(authorA);
     }
 }
