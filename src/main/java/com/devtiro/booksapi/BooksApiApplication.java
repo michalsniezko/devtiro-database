@@ -1,4 +1,4 @@
-package com.devtiro.database;
+package com.devtiro.booksapi;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
@@ -8,10 +8,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @Log
 @SpringBootApplication
 @RequiredArgsConstructor
-public class DatabaseApplication {
+public class BooksApiApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(DatabaseApplication.class, args);
+		SpringApplication.run(BooksApiApplication.class, args);
 	}
 
 }
