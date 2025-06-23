@@ -129,4 +129,38 @@ public class BookControllerIntegrationTest {
                 MockMvcResultMatchers.status().isNotFound()
         );
     }
+
+    @Test
+    public void testThatPartialUpdateBookReturnsHttpStatusOkWhenBookExists() throws Exception {
+        BookEntity bookEntity = TestDataUtil.createTestBookA(null);
+        bookService.createUpdateBook("123123123", bookEntity);
+
+        BookDto bookDto = TestDataUtil.createTestBookDtoA(null);
+        bookDto.setIsbn(bookEntity.getIsbn());
+        bookDto.setTitle("UPDATED");
+        String updateBookJson = objectMapper.writeValueAsString(bookDto);
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.patch("/books/" + bookEntity.getIsbn())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(updateBookJson)
+        ).andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+    @Test
+    public void testThatPartialUpdateBookUpdatesExistingBook() throws Exception {
+        BookEntity bookEntity = TestDataUtil.createTestBookA(null);
+        bookService.createUpdateBook("123123123", bookEntity);
+
+        BookDto bookDto = TestDataUtil.createTestBookDtoA(null);
+        bookDto.setIsbn(bookEntity.getIsbn());
+        bookDto.setTitle("UPDATED");
+        String updateBookJson = objectMapper.writeValueAsString(bookDto);
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.patch("/books/" + bookEntity.getIsbn())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(updateBookJson)
+        ).andExpect(MockMvcResultMatchers.jsonPath("$.title").value("UPDATED"));
+    }
 }

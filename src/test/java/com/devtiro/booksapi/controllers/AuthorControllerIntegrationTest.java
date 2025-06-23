@@ -148,4 +148,42 @@ public class AuthorControllerIntegrationTest {
                 );
     }
 
+    @Test
+    public void testThatPartialUpdateExistingAuthorReturnsHttpStatus200() throws Exception {
+        AuthorEntity testAuthorA = TestDataUtil.createTestAuthorA();
+        AuthorEntity savedAuthorEntity = authorService.saveAuthor(testAuthorA);
+
+        AuthorDto testAuthorDtoA = TestDataUtil.createTestAuthorDtoA();
+        testAuthorDtoA.setName("UPDATED");
+        String json = objectMapper.writeValueAsString(testAuthorDtoA);
+
+        mockMvc.perform(
+                patch("/authors/" + savedAuthorEntity.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json)
+        ).andExpect(
+                status().isOk()
+        );
+    }
+
+    @Test
+    public void testThatPartialUpdateExistingAuthorReturnsUpdatedAuthor() throws Exception {
+        AuthorEntity testAuthorA = TestDataUtil.createTestAuthorA();
+        AuthorEntity savedAuthorEntity = authorService.saveAuthor(testAuthorA);
+
+        AuthorDto testAuthorDtoA = TestDataUtil.createTestAuthorDtoA();
+        testAuthorDtoA.setName("UPDATED");
+        String json = objectMapper.writeValueAsString(testAuthorDtoA);
+
+        mockMvc.perform(
+                patch("/authors/" + savedAuthorEntity.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json)
+        ).andExpect(
+                jsonPath("$.name").value("UPDATED")
+        ).andExpect(
+                jsonPath("$.age").value(testAuthorA.getAge())
+        );
+    }
+
 }

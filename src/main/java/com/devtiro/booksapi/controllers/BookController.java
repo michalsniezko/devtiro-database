@@ -50,4 +50,17 @@ public class BookController {
                 }
         ).orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
+
+    @PatchMapping("/{isbn}")
+    public ResponseEntity<BookDto> updateBook(@PathVariable String isbn, @RequestBody BookDto bookDto) {
+        if (!bookService.isExists(isbn)) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        BookEntity bookEntity = bookMapper.mapFrom(bookDto);
+        BookEntity updatedBookEntity = bookService.partialUpdate(isbn, bookEntity);
+
+        BookDto updatedBookDto = bookMapper.mapTo(updatedBookEntity);
+        return new ResponseEntity<>(updatedBookDto, HttpStatus.OK);
+    }
 }
