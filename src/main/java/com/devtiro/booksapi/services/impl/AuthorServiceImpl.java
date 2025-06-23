@@ -33,8 +33,8 @@ public class AuthorServiceImpl implements AuthorService {
     }
 
     @Override
-    public boolean isExists(Long id) {
-        return authorRepository.existsById(id);
+    public boolean doesNotExist(Long id) {
+        return !authorRepository.existsById(id);
     }
 
     @Override
@@ -48,5 +48,10 @@ public class AuthorServiceImpl implements AuthorService {
                     return authorRepository.save(existingAuthor);
                 }
         ).orElseThrow(() -> new RuntimeException("Author not found"));
+    }
+
+    @Override
+    public void delete(Long id) {
+        authorRepository.deleteById(id);
     }
 }

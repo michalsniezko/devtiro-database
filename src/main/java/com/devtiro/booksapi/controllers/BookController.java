@@ -63,4 +63,10 @@ public class BookController {
         BookDto updatedBookDto = bookMapper.mapTo(updatedBookEntity);
         return new ResponseEntity<>(updatedBookDto, HttpStatus.OK);
     }
+
+    @DeleteMapping("/{isbn}")
+    public ResponseEntity<?> deleteBook(@PathVariable String isbn) {
+        bookService.delete(isbn);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 }
