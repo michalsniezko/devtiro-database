@@ -1,6 +1,7 @@
 package com.devtiro.booksapi.controllers;
 
 import com.devtiro.booksapi.TestDataUtil;
+import com.devtiro.booksapi.domain.dto.AuthorDto;
 import com.devtiro.booksapi.domain.entities.AuthorEntity;
 import com.devtiro.booksapi.services.AuthorService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,7 +19,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@DirtiesContext
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class AuthorControllerIntegrationTest {
     private final MockMvc mockMvc;
@@ -62,7 +63,7 @@ public class AuthorControllerIntegrationTest {
     @Test
     public void testListAuthorsReturnsListOfAuthors() throws Exception {
         AuthorEntity testAuthorA = TestDataUtil.createTestAuthorA();
-        authorService.createAuthor(testAuthorA);
+        authorService.saveAuthor(testAuthorA);
 
         mockMvc.perform(get("/authors"))
                 .andExpect(jsonPath("$").isArray())
@@ -71,4 +72,80 @@ public class AuthorControllerIntegrationTest {
                 .andExpect(jsonPath("$[0].age").value(80));
 
     }
+
+    @Test
+    public void testThatGetAuthorHttpStatus200WhenAuthorExists() throws Exception {
+        AuthorEntity testAuthorA = TestDataUtil.createTestAuthorA();
+        authorService.saveAuthor(testAuthorA);
+
+        mockMvc.perform(get("/authors/1")).andExpect(status().isOk());
+    }
+
+    @Test
+    public void testThatGetAuthorHttpStatus400WhenAuthorDoesNotExist() throws Exception {
+        mockMvc.perform(get("/authors/1")).andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void testThatGetAuthorReturnAuthorWhenAuthorExists() throws Exception {
+        AuthorEntity testAuthorA = TestDataUtil.createTestAuthorA();
+        authorService.saveAuthor(testAuthorA);
+
+        mockMvc.perform(get("/authors/1"))
+                .andExpect(jsonPath("$").isNotEmpty())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.name").value("John Doe"))
+                .andExpect(jsonPath("$.age").value(80));
+    }
+
+    @Test
+    public void testThatFullUpdateAuthorHttpStatus400WhenAuthorDoesNotExist() throws Exception {
+        AuthorDto testAuthorA = TestDataUtil.createTestAuthorDtoA();
+        String json = objectMapper.writeValueAsString(testAuthorA);
+
+        mockMvc.perform(
+                put("/authors/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json)
+        ).andExpect(
+                status().isNotFound()
+        );
+    }
+
+    @Test
+    public void testThatFullUpdateAuthorHttpStatus200WhenAuthorExists() throws Exception {
+        AuthorEntity testAuthorA = TestDataUtil.createTestAuthorA();
+        AuthorEntity authorEntity = authorService.saveAuthor(testAuthorA);
+
+        AuthorDto testAuthorDtoA = TestDataUtil.createTestAuthorDtoA();
+        String json = objectMapper.writeValueAsString(testAuthorDtoA);
+
+        mockMvc.perform(
+                put("/authors/" + authorEntity.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json)
+        ).andExpect(
+                status().isOk()
+        );
+    }
+
+    @Test
+    public void testThatFullUpdateUpdatesExistingAuthor() throws Exception {
+        AuthorEntity testAuthorA = TestDataUtil.createTestAuthorA();
+        AuthorEntity authorEntity = authorService.saveAuthor(testAuthorA);
+
+        AuthorDto testAuthorDtoA = TestDataUtil.createTestAuthorDtoA();
+        testAuthorDtoA.setId(authorEntity.getId());
+        String json = objectMapper.writeValueAsString(testAuthorDtoA);
+
+        mockMvc.perform(put("/authors/" + authorEntity.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json)
+                )
+                .andExpect(jsonPath("$.name").value(testAuthorDtoA.getName()))
+                .andExpect(jsonPath("$.age").value(testAuthorDtoA.getAge()))
+                .andExpect(jsonPath("$.id").value(testAuthorDtoA.getId())
+                );
+    }
+
 }

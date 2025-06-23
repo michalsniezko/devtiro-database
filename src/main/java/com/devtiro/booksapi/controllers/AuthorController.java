@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -22,7 +23,7 @@ public class AuthorController {
     @PostMapping
     public ResponseEntity<AuthorDto> createAuthor(@RequestBody AuthorDto author) {
         AuthorEntity authorEntity = authorMapper.mapFrom(author);
-        AuthorEntity savedAuthorEntity = authorService.createAuthor(authorEntity);
+        AuthorEntity savedAuthorEntity = authorService.saveAuthor(authorEntity);
         return new ResponseEntity<>(authorMapper.mapTo(savedAuthorEntity), HttpStatus.CREATED);
     }
 
@@ -33,5 +34,31 @@ public class AuthorController {
                 .stream()
                 .map(authorMapper::mapTo)
                 .collect(Collectors.toList());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<AuthorDto> findAuthorById(@PathVariable("id") Long id) {
+        Optional<AuthorEntity> foundAuthor = authorService.findOne(id);
+
+        return foundAuthor.map(
+                authorEntity -> {
+                    AuthorDto authorDto = authorMapper.mapTo(authorEntity);
+                    return new ResponseEntity<>(authorDto, HttpStatus.OK);
+                }
+        ).orElse(
+                new ResponseEntity<>(HttpStatus.NOT_FOUND)
+        );
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<AuthorDto> fullUpdateAuthor(@PathVariable("id") Long id, @RequestBody AuthorDto authorDto) {
+        if(!authorService.isExists(id)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+
+        authorDto.setId(id);
+        AuthorEntity savedAuthorEntity = authorService.saveAuthor(authorMapper.mapFrom(authorDto));
+
+        return new ResponseEntity<>(authorMapper.mapTo(savedAuthorEntity), HttpStatus.OK);
     }
 }

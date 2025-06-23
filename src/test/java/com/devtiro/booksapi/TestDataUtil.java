@@ -14,6 +14,13 @@ public final class TestDataUtil {
                 .build();
     }
 
+    public static AuthorDto createTestAuthorDtoA() {
+        return AuthorDto.builder()
+                .name("John Doe")
+                .age(80)
+                .build();
+    }
+
     public static AuthorEntity createTestAuthorB() {
         return AuthorEntity.builder()
                 .name("Abigail Rose")

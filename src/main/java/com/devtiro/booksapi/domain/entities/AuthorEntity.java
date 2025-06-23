@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "authors")
 public class AuthorEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "authors_id_seq")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
     private String name;
     private Integer age;
