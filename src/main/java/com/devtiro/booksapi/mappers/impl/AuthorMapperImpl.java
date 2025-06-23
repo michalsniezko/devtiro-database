@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class AuthorMapper implements Mapper<AuthorEntity, AuthorDto> {
+public class AuthorMapperImpl implements Mapper<AuthorEntity, AuthorDto> {
     private final ModelMapper modelMapper;
 
     @Override

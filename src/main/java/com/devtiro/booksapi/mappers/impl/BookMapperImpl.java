@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class BookMapper implements Mapper<BookEntity, BookDto> {
+public class BookMapperImpl implements Mapper<BookEntity, BookDto> {
     private final ModelMapper modelMapper = new ModelMapper();
 
     @Override
