@@ -4,6 +4,8 @@ import com.devtiro.booksapi.domain.entities.BookEntity;
 import com.devtiro.booksapi.repositories.BookRepository;
 import com.devtiro.booksapi.services.BookService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,6 +28,11 @@ public class BookServiceImpl implements BookService {
     public List<BookEntity> findAll() {
         return StreamSupport.stream(bookRepository.findAll().spliterator(), false)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Page<BookEntity> findAll(Pageable pageable) {
+        return bookRepository.findAll(pageable);
     }
 
     @Override

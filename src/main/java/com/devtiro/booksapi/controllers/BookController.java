@@ -5,11 +5,12 @@ import com.devtiro.booksapi.domain.entities.BookEntity;
 import com.devtiro.booksapi.mappers.Mapper;
 import com.devtiro.booksapi.services.BookService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -33,12 +34,10 @@ public class BookController {
     }
 
     @GetMapping
-    public List<BookDto> findAllBooks() {
-        List<BookEntity> bookEntities = bookService.findAll();
-        return bookEntities
-                .stream()
-                .map(bookMapper::mapTo)
-                .toList();
+    public Page<BookDto> findAllBooks(Pageable pageable) {
+        Page<BookEntity> bookEntities = bookService.findAll(pageable);
+
+        return bookEntities.map(bookMapper::mapTo);
     }
 
     @GetMapping("/{isbn}")
